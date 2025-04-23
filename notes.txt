@@ -1,0 +1,47 @@
+-   import numpy as np
+    Imports the NumPy library, a fundamental package for numerical computations in Python, and gives it the alias np.
+
+-   import pandas as pd
+    Imports the pandas library, widely used for data manipulation and analysis, with the alias pd.
+
+-   import datetime
+    Imports the standard Python module for working with dates and times.
+
+-   from alpaca.data.historical import StockHistoricalDataClient
+    Imports StockHistoricalDataClient from the Alpaca API’s historical data module, used to fetch historical stock data.
+    https://alpaca.markets/sdks/python/getting_started.html
+
+
+-   from alpaca.data.requests import StockBarsRequest
+    Imports StockBarsRequest from Alpaca’s data requests module, which is used to specify parameters for requesting stock bar (OHLCV) data.
+    
+
+-   from alpaca.data import TimeFrame
+    Imports TimeFrame from Alpaca’s data module, which is used to define the granularity (e.g., daily, minute) of the stock data.
+
+-   from sklearn.preprocessing import StandardScaler
+    Imports StandardScaler from scikit-learn, used to standardize features by removing the mean and scaling to unit variance.
+
+-   from sklearn.model_selection import train_test_split
+    Imports train_test_split from scikit-learn, a utility to split data arrays into training and test subsets.
+
+-   from tensorflow.keras.models import Sequential
+    Imports Sequential from TensorFlow Keras, a linear stack of neural network layers.
+
+-   from tensorflow.keras.layers import LSTM, Dense, Dropout
+    Imports three types of Keras layers:
+
+    LSTM: Long Short-Term Memory layer, used for recurrent neural networks.
+
+    Dense: Standard fully connected neural network layer.
+
+    Dropout: Regularization layer to prevent overfitting.
+
+-   from tensorflow.keras.optimizers import Adam
+    Imports the Adam optimizer from Keras, a popular optimization algorithm for training neural networks.
+
+-   import plotly.graph_objects as go
+    Imports Plotly’s graph objects module for creating interactive visualizations, with the alias go.
+
+-   from plotly.subplots import make_subplots
+    Imports make_subplots from Plotly, a function to create figures with multiple subplots.
