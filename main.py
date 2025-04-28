@@ -68,14 +68,23 @@ class PrepareData:
         test_data = self.df.iloc[int(0.2*len(self.df)):] #20% of data for testing (per cross validation info)
         return train_data, test_data
     
-    def scale_data(self): # reduces noise, endcoding, normalization, handles missing values
-        #this method essentially preps this data for the LSTM model
+    def scale_data(self): #this method essentially preps this data for the LSTM model
+        # transforming reduces noise, endcoding, normalization, handles missing values
+        
+        # fitting Avoids data leakage: By fitting only on the training data, you prevent information from the test set leaking into the model,
+        # which could artificially inflate performance metrics
+        #Fitting is the step where the transformation “learns” how to process the data;
+        
+        # transforming then applies this learned process to new data
+        
         train_data = self.scaler.fit_transform(train_data) #uses both fit & transform
         #The fit(data) method is used to compute the mean and std dev 
         # for a given feature to be used further for scaling.
         test_data = self.scaler.transform(test_data)
         # transform(data) method is used to perform scaling using 
         # mean and std dev calculated using the .fit() method.
+        
+    
 def main():
     fetch_stock_data = FetchStockData(DataConfig.symbol, DataConfig.startTraining, DataConfig.now, DataConfig.stock_client)
     df_time_series = fetch_stock_data.fetch_data(DataConfig.stock_client)
