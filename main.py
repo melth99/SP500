@@ -89,11 +89,12 @@ class PrepareData:
 class CreateLSTMModel:
     #this class creates the LSTM model
     
-    def __init__(self, train_data, test_data, columns):
+    def __init__(self, train_data, test_data, columns, neuron_num):
         self.train_data = train_data
         self.test_data = test_data
         self.stock_model = Sequential()
         self.train_data_shape = columns
+        self.neuron_num =  neuron_num #starting here! can change later
     
     def one_step_ahead_prediction(self):
         #this method creates a one step ahead prediction
@@ -110,11 +111,20 @@ class CreateLSTMModel:
         #input layer has NO neurons it just passes the data to the first LSTM layer
 
         self.stock_model.add(Dense(32,activation="relu", input_shape=(column_num,), name="layer_1"))
+        i = 2
+        neuron_loop = self.neuron_num
+        while i > 1: #allows for dynamic neuron number when fine-tuning later!
+            neuron_loop = neuron_loop/2
+            i += 1
+            self.stock_model.add(Dense(neuron_loop,self.neuron_num,activation="relu", name=f"layer_{i}"))
+        self.stock_model.add(Dense(1,activation="relu", name="output_layer"))
+        
+        """           
         self.stock_model.add(Dense(16,activation="relu", name="layer_2"))
         self.stock_model.add(Dense(8,activation="relu", name="layer_3"))
         self.stock_model.add(Dense(4,activation="relu", name="layer_4"))
-        self.stock_model.add(Dense(2,activation="relu", name="layer_5"))
-        self.stock_model.add(Dense(1,activation="relu", name="output_layer"))
+        self.stock_model.add(Dense(2,activation="relu", name="layer_5")) """
+        
         
         
         
@@ -130,7 +140,8 @@ def main():
     fetch_stock_data = FetchStockData(DataConfig.symbol, DataConfig.startTraining, DataConfig.now, DataConfig.stock_client)
     df_time_series = fetch_stock_data.fetch_data(DataConfig.stock_client)
     prepare_data = PrepareData(df_time_series)
-    create_model = CreateLSTMModel(prepare_data.train_data, prepare_data.test_data, fetch_stock_data.column_num)
+    neuron_num = 32 #starting here! can change later will also change organization of this later!
+    create_model = CreateLSTMModel(prepare_data.train_data, prepare_data.test_data, fetch_stock_data.column_num, neuron_num)
     
     
     
