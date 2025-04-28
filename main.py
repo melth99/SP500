@@ -4,14 +4,14 @@ import datetime as dt
 from dotenv import load_dotenv
 from alpaca.data.historical import StockHistoricalDataClient
 from alpaca.data.requests import StockLatestQuoteRequest
-from alpaca.data.requests import StockBarsRequest 
+from alpaca.data.requests import StockBarsRequest
 from alpaca.data import TimeFrame
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense 
 import requests
@@ -22,16 +22,16 @@ import os
 load_dotenv()
 
 class DataConfig:
-    alpaca_api_key = os.environ["APCA-API-KEY-ID"]
-    alpaca_secret_key = os.environ["APCA-API-SECRET-KEY"]
-    now = dt.datetime.now()
-    startTraining = now - dt.timedelta(days=60)
-    symbol = "SPY"
-
-    stock_client = StockHistoricalDataClient(
-        api_key = alpaca_api_key,
-        secret_key = alpaca_secret_key,
-    )
+    def __init__(self):
+        self.alpaca_api_key = os.environ["APCA-API-KEY-ID"]
+        self.alpaca_secret_key = os.environ["APCA-API-SECRET-KEY"]
+        self.now = dt.datetime.now()
+        self.startTraining = self.now - dt.timedelta(days=60)
+        self.symbol = "SPY"
+        self.stock_client = StockHistoricalDataClient(
+            api_key = self.alpaca_api_key,
+            secret_key = self.alpaca_secret_key,
+        )
 
 
 class FetchStockData:
@@ -59,6 +59,8 @@ class PrepareData:
     def __init__(self, df):
         self.df = df
         self.scaler = MinMaxScaler()
+        self.train_data = None
+        self.test_data = None
     def prepare_data(self):
         # utc timestamp | open | high | low | close | vwap
         self.df = self.df.sort_index()
@@ -66,8 +68,8 @@ class PrepareData:
 
     def split_data(self):
         #split data into train and test sets
-        train_data = self.df.iloc[:int(0.8*len(self.df))] #80% of data for training
-        test_data = self.df.iloc[int(0.2*len(self.df)):] #20% of data for testing (per cross validation info)
+        train_data = self.df.iloc[:int(0.8*len(self.df))] #first 80% of data for training
+        test_data = self.df.iloc[int(0.2*len(self.df)):] #last 20% of data for testing (per cross validation info)
         return train_data, test_data
     
     def scale_data(self): #this method essentially preps this data for the LSTM model
@@ -125,9 +127,8 @@ class CreateLSTMModel:
         self.stock_model.add(Dense(4,activation="relu", name="layer_4"))
         self.stock_model.add(Dense(2,activation="relu", name="layer_5")) """
         
-        
-        
-        
+        model_summary = self.stock_model.summary()
+        print(model_summary)
         
         
         
@@ -137,10 +138,11 @@ class CreateLSTMModel:
         
         
 def main():
-    fetch_stock_data = FetchStockData(DataConfig.symbol, DataConfig.startTraining, DataConfig.now, DataConfig.stock_client)
-    df_time_series = fetch_stock_data.fetch_data(DataConfig.stock_client)
+    config = DataConfig()  # Create an instance of DataConfig
+    fetch_stock_data = FetchStockData(config.symbol, config.startTraining, config.now, config.stock_client)
+    df_time_series = fetch_stock_data.fetch_data(config.stock_client)
     prepare_data = PrepareData(df_time_series)
-    neuron_num = 32 #starting here! can change later will also change organization of this later!
+    neuron_num = 32  # starting here! can change later will also change organization of this later! to avoid over computation and overfitting
     create_model = CreateLSTMModel(prepare_data.train_data, prepare_data.test_data, fetch_stock_data.column_num, neuron_num)
     
     
