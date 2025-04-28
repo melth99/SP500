@@ -23,6 +23,13 @@ Predicted Closing Price (Xₜ)
 
 
 
+ReLU: Mitigates vanishing gradients and accelerates training compared to sigmoid/tanh.
+
+Sigmoid: Converts outputs to probabilities (for binary classification).
+
+Sequential Flow: Data passes through layers in the order they’re added.
+
+
 
 Import	What It Is / Does	Why It’s Important
 
