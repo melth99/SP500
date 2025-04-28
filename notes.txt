@@ -1,3 +1,33 @@
+LSTM visualizations:
+Past 60 Days Closing Prices  ➔  [Xₜ₋₆₀, Xₜ₋₅₉, ..., Xₜ₋₁]
+
+      ↓ (Input Sequence)
+
++--------------------------------------------------+
+|                     LSTM                         |
+|  Remembers patterns over time                    |
+|  (e.g., "price is trending up, but volatility rising") |
++--------------------------------------------------+
+
+      ↓ (Hidden Representation)
+
++-----------------+
+| Dense Layer     |
+| (Outputs Next Day's Price) |
++-----------------+
+
+      ↓
+
+Predicted Closing Price (Xₜ)
+
+
+
+
+
+
+
+
+Imports:
 -   import numpy as np
     Imports the NumPy library, a fundamental package for numerical computations in Python, and gives it the alias np.
 

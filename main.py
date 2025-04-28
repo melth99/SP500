@@ -20,37 +20,46 @@ import os
 
 # Load environment variables from .env file
 load_dotenv()
-alpaca_api_key = os.environ["APCA-API-KEY-ID"]
-alpaca_secret_key = os.environ["APCA-API-SECRET-KEY"]
 
-stock_client = StockHistoricalDataClient(
-    api_key = alpaca_api_key,
-    secret_key = alpaca_secret_key,
-)
+class DataConfig:
+    alpaca_api_key = os.environ["APCA-API-KEY-ID"]
+    alpaca_secret_key = os.environ["APCA-API-SECRET-KEY"]
+    now = dt.datetime.now()
+    startTraining = now - dt.timedelta(days=60)
+    symbol = "SPY"
 
-request_params = StockBarsRequest(
-    symbol_or_symbols="SPY",
-    timeframe=TimeFrame.Day,
-    start=dt.datetime(2024, 11, 1),
-    end=dt.datetime.now().date(),
-    pagination=True
-)
-
-try:
-    bars = stock_client.get_stock_bars(request_params)
-    df = bars.df #dataframe from pandas
-    print(df)
-
-except Exception as e:
-    print(f"Error fetching data: {str(e)}")
+    stock_client = StockHistoricalDataClient(
+        api_key = alpaca_api_key,
+        secret_key = alpaca_secret_key,
+    )
 
 
+class FetchStockData:
+    def __init__(self, symbol, start, end, stock_client):
+        self.stock_client = stock_client
+        self.request_params = StockBarsRequest(
+            symbol_or_symbols=symbol,
+            timeframe=TimeFrame.Day,
+            start=start,
+            end=end,
+            pagination=True
+        )
+    def fetch_data(self,stock_client):
+        try:
+            bars = stock_client.get_stock_bars(self.request_params)
+            df = bars.df #dataframe from pandas
+            print(df)
+
+        except Exception as e:
+            print(f"Error fetching data: {str(e)}")
 
 
 
+def main():
+    fetch_stock_data = FetchStockData(DataConfig.symbol, DataConfig.startTraining, DataConfig.now, DataConfig.stock_client)
+    return fetch_stock_data.fetch_data(DataConfig.stock_client)
 
 
 
-
-
-
+if __name__ == "__main__":
+    main()
