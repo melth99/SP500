@@ -24,10 +24,27 @@ Predicted Closing Price (Xₜ)
 
 
 
+Import	What It Is / Does	Why It’s Important
 
+Sequential	Linear stack model builder (Keras)
+     - Easy to build neural networks
+LSTM 
+    - Recurrent layer for sequence data	Captures time dependencies
+Dense
+	- Fully connected neural network layer	Transforms data, outputs predictions
+train_test_split
+	- Splits data into train/test sets	Validates model performance
+MinMaxScaler
+	- Scales features to a fixed range	Normalizes data for stable training
 
 
 Imports:
+
+from tensorflow.keras.models import Sequential
+- Sequential is a class in Keras (a high-level neural network API in TensorFlow) used to build models layer-by-layer in a linear stack.
+
+
+
 -   import numpy as np
     Imports the NumPy library, a fundamental package for numerical computations in Python, and gives it the alias np.
 

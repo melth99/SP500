@@ -53,11 +53,35 @@ class FetchStockData:
         except Exception as e:
             print(f"Error fetching data: {str(e)}")
 
-
-
+class PrepareData:
+    def __init__(self, df):
+        self.df = df
+        self.scaler = MinMaxScaler()
+    def prepare_data(self):
+        # utc timestamp | open | high | low | close | vwap
+        self.df = self.df.sort_index()
+        self.df = self.df.dropna() #gets rid of missing values in df
+        return self.df
+    def split_data(self):
+        #split data into train and test sets
+        train_data = self.df.iloc[:int(0.8*len(self.df))] #80% of data for training
+        test_data = self.df.iloc[int(0.2*len(self.df)):] #20% of data for testing (per cross validation info)
+        return train_data, test_data
+    
+    def scale_data(self): # reduces noise, endcoding, normalization, handles missing values
+        #this method essentially preps this data for the LSTM model
+        train_data = self.scaler.fit_transform(train_data) #uses both fit & transform
+        #The fit(data) method is used to compute the mean and std dev 
+        # for a given feature to be used further for scaling.
+        test_data = self.scaler.transform(test_data)
+        # transform(data) method is used to perform scaling using 
+        # mean and std dev calculated using the .fit() method.
 def main():
     fetch_stock_data = FetchStockData(DataConfig.symbol, DataConfig.startTraining, DataConfig.now, DataConfig.stock_client)
-    return fetch_stock_data.fetch_data(DataConfig.stock_client)
+    df_time_series = fetch_stock_data.fetch_data(DataConfig.stock_client)
+    prepare_data = PrepareData(df_time_series)
+    data_prepared = prepare_data.prepare_data()
+    
 
 
 
