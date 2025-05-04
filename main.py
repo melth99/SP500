@@ -44,6 +44,12 @@ class FetchStockData:
             end=end,
             pagination=True
         )
+        self.request_today = StockBarsRequest(
+            symbol_or_symbols=symbol,
+            timeframe=TimeFrame.Day,
+            start=dt.datetime.now().date(),
+            pagination=True
+        ) #todays value we can compare to
         self.columns = ["open", "high", "low", "close", "volume", "vwap", "timestamp"]
         self.column_num = len(self.columns)
     def fetch_data(self,stock_client):
@@ -55,6 +61,10 @@ class FetchStockData:
 
         except Exception as e:
             print(f"Error fetching data: {str(e)}")
+            
+    def whatIsToday(self):
+        today_bars = self.stock_client.get_stock_bars(self.request_today)
+        return self.stock_client.get.stock_bars(self.request_today)
 
 class PrepareData:
     def __init__(self, df):

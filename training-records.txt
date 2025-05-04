@@ -1,0 +1,27 @@
+
+
+Breakdown of how to read each batch of training data:
+Epoch 28/50
+1/1 ━━━━━━━━━━━━━━━━━━━━ 0s 99ms/step - loss: 0.3978 - mae: 0.5391 - val_loss: 0.1062 - val_mae: 0.2875
+
+- 1/1 = this is batch one of one
+- 0s 99ms/step = 0s -> batch took less than one second | 99ms/step on average at this point in training
+it takes 99ms/step to run
+- loss: 0.049 = shows how well model fits training data - typically Mean Squared Error (MSE) in regression
+- mae: 0.5391 = mean absolute error (mae) -> on average, training data is off by .545
+- val_loss: 0.1062 = loss after training this epoch (squared error is LESS than "loss" which means model is 
+generalizing well)
+- val_mae: 0.2875 = mae on validation set (data not used for training, "test_data" in code)
+
+-  100ms to train this epoch
+
+==========================================================================================================
+1st Model:
+summary:
+- 5 stacked LSTM Layers with decreasing units (32 -> 2)
+- Final Dense output layer for regression 
+training:
+- loss is decreasing steadily
+- validation loss is decreasing so unlikely overfitting
+-  Mean Absolute Error (MAE) is a metric used to measure the average
+ magnitude of errors in a set of predictions. - is .25
