@@ -138,14 +138,14 @@ class CreateLSTMModel:
         # Print model summary
         self.stock_model.summary()
 class FindAnswer: #remmeber 6 features # lets do sequences of 10 days to predict 11th day
-    def __init__(self, model, test_data, sequence_length):
+    def __init__(self, model, test_data, sequence_length, scaler):
         self.model = model
         self.prediction = None
         self.sequence_length = sequence_length #10 days (for out 60 day model right now)
         self.n_features = 7 #constant from our alpaca data no need to create variable
         self.latest_window = test_data[-sequence_length:] #grabs last "sequence_length" rows of data
         self.latest_sequence = None
-        self.scaler = MinMaxScaler()
+        self.scaler = scaler
         self.actual_row = None
         self.predicted_price_actual = None
         self.real_world_answer = None
@@ -161,9 +161,9 @@ class FindAnswer: #remmeber 6 features # lets do sequences of 10 days to predict
 
     def de_scale(self):
         self.dummy_input = np.zeros((1, 7))  # 7 = number of features 
-        self.dummy_input[0, -1] = self.prediction[0][0]  # assuming you're predicting 'close'
+        self.dummy_input[0, -1] = self.prediction[0][0]  # only the 'close' price is predicted
+        #cutting out the other features to just estime price or 'close' for simplicity
 
-        
         self.actual_row = self.scaler.inverse_transform(self.dummy_input)
         self.predicted_price_actual = self.actual_row[0, -1]  # extract just the 'close' price
         return self.predicted_price_actual
@@ -216,7 +216,7 @@ def main():
     print(f"Test MAE: {test_mae:.4f}")
     
     #ask user if they want to see training data modeled
-    find_answer = FindAnswer(create_model.stock_model, prepare_data.test_data, sequence_length)
+    find_answer = FindAnswer(create_model.stock_model, prepare_data.test_data, sequence_length, prepare_data.scaler)
     answer = find_answer.find_latest_sequence()
     answer = find_answer.de_scale()
     print("Answer", answer)
