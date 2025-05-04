@@ -1,0 +1,5 @@
+
+
+Ideas:
+- Automate code to run everyday after market close, and if my model is off my a certain marigin
+to recieve and email alert

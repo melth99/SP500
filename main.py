@@ -137,6 +137,14 @@ class CreateLSTMModel:
 
         # Print model summary
         self.stock_model.summary()
+class FindAnswer: #remmeber 6 features # lets do sequences of 10 days to predict 11th day
+    def __init__(self, model, test_data, sequence_length):
+        self.model = model
+        self.answer = None
+        self.sequence_length = sequence_length #10 days (for out 60 day model right now)
+        self.n_features = 6 #constant from our alpaca data no need to create variable
+    def find_answer(self):
+        return self.model.predict(self.test_data)
 
 def main():
     config = DataConfig()
@@ -179,6 +187,8 @@ def main():
     )
     print(f"Test Loss: {test_loss:.4f}")
     print(f"Test MAE: {test_mae:.4f}")
+    
+    #ask user if they want to see training data modeled
 
 
 if __name__ == "__main__":
