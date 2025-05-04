@@ -140,12 +140,36 @@ class CreateLSTMModel:
 class FindAnswer: #remmeber 6 features # lets do sequences of 10 days to predict 11th day
     def __init__(self, model, test_data, sequence_length):
         self.model = model
-        self.answer = None
+        self.prediction = None
         self.sequence_length = sequence_length #10 days (for out 60 day model right now)
-        self.n_features = 6 #constant from our alpaca data no need to create variable
-    def find_answer(self):
-        return self.model.predict(self.test_data)
+        self.n_features = 7 #constant from our alpaca data no need to create variable
+        self.latest_window = test_data[-sequence_length:] #grabs last "sequence_length" rows of data
+        self.latest_sequence = None
+        self.scaler = MinMaxScaler()
+        self.actual_row = None
+        self.predicted_price_actual = None
+        self.real_world_answer = None
+        self.dummy_input = None
 
+        
+    def find_latest_sequence(self):
+        print('latest_window', self.latest_window)
+        self.latest_sequence = self.latest_window.reshape(1,self.sequence_length,self.n_features)
+        self.prediction = self.model.predict(self.latest_sequence)
+
+        return self.prediction # needs to be un-scaled
+
+    def de_scale(self):
+        self.dummy_input = np.zeros((1, 7))  # 7 = number of features 
+        self.dummy_input[0, -1] = self.prediction[0][0]  # assuming you're predicting 'close'
+
+        
+        self.actual_row = self.scaler.inverse_transform(self.dummy_input)
+        self.predicted_price_actual = self.actual_row[0, -1]  # extract just the 'close' price
+        return self.predicted_price_actual
+
+    def real_world_answer(self):
+        pass
 def main():
     config = DataConfig()
     fetch_stock_data = FetchStockData(config.symbol, config.startTraining, config.now, config.stock_client)
@@ -185,10 +209,18 @@ def main():
         create_model.test_data,
         create_model.test_data[:, -1]
     )
+    
+    #find answer
+    sequence_length = 10 #10 days to predict 11th day - FROM the model that was trained in the code above
     print(f"Test Loss: {test_loss:.4f}")
     print(f"Test MAE: {test_mae:.4f}")
     
     #ask user if they want to see training data modeled
+    find_answer = FindAnswer(create_model.stock_model, prepare_data.test_data, sequence_length)
+    answer = find_answer.find_latest_sequence()
+    answer = find_answer.de_scale()
+    print("Answer", answer)
+
 
 
 if __name__ == "__main__":
