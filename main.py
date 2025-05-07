@@ -76,6 +76,8 @@ class PrepareData:
         # utc timestamp | open | high | low | close | vwap
         self.df = self.df.sort_index()
         self.df = self.df.dropna() #gets rid of missing values in df
+        self.unscaled_price_at_market_close = self.test_data.iloc[-1]["close"]
+        return self.unscaled_price_at_market_close
 
     def split_data(self):
         #split data into train and test sets
@@ -138,7 +140,7 @@ class CreateLSTMModel:
         # Print model summary
         self.stock_model.summary()
 class FindAnswer: #remmeber 6 features # lets do sequences of 10 days to predict 11th day
-    def __init__(self, model, test_data, sequence_length, scaler):
+    def __init__(self, model, test_data, sequence_length, scaler, today_price):
         self.model = model
         self.prediction = None
         self.sequence_length = sequence_length #10 days (for out 60 day model right now)
@@ -150,38 +152,47 @@ class FindAnswer: #remmeber 6 features # lets do sequences of 10 days to predict
         self.predicted_price_actual = None
         self.real_world_answer = None
         self.dummy_input = None
-
+        self.today_price = today_price
         
     def find_latest_sequence(self):
         print('latest_window', self.latest_window)
         self.latest_sequence = self.latest_window.reshape(1,self.sequence_length,self.n_features)
         self.prediction = self.model.predict(self.latest_sequence)
+        
 
         return self.prediction # needs to be un-scaled
 
     def de_scale(self):
         self.dummy_input = np.zeros((1, 7))  # 7 = number of features 
         self.dummy_input[0, -1] = self.prediction[0][0]  # only the 'close' price is predicted
-        #cutting out the other features to just estime price or 'close' for simplicity
+        self.scaled_price_at_market_close = self.latest_window[-1, -1]
+        #adding 0s to the other features to just estime price or 'close' for simplicity
+
 
         self.actual_row = self.scaler.inverse_transform(self.dummy_input)
         self.predicted_price_actual = self.actual_row[0, -1]  # extract just the 'close' price
         return self.predicted_price_actual
 
-    def real_world_answer(self):
-        pass
+    def print_answer(self):
+        self.difference = self.predicted_price_actual - self.today_price #prediction for tmr vs price today
+        self.difference_percentage = (self.difference / self.today_price) * 100
+        self.real_world_answer = f"The predicted price is {self.predicted_price_actual}, while the price todayis {self.today_price}. The difference is {self.difference:.2f}, which is {self.difference_percentage:.2f}%"
+        return self.real_world_answer
+        
+
+        
 def main():
     config = DataConfig()
     fetch_stock_data = FetchStockData(config.symbol, config.startTraining, config.now, config.stock_client)
     df_time_series = fetch_stock_data.fetch_data(config.stock_client)
     print("Raw data fetched:\n", df_time_series.head())
 
-    prepare_data = PrepareData(df_time_series)
-    prepare_data.prepare_data()
+    preparedata = PrepareData(df_time_series)
+    preparedata.prepare_data()
     train_data, test_data = prepare_data.split_data()
-    prepare_data.train_data = train_data
-    prepare_data.test_data = test_data
-    prepare_data.scale_data()
+    preparedata.train_data = train_data
+    preparedata.test_data = test_data
+    preparedata.scale_data()
 
     neuron_num = 32
     create_model = CreateLSTMModel(prepare_data.train_data, prepare_data.test_data, fetch_stock_data.column_num, neuron_num)
@@ -215,12 +226,14 @@ def main():
     print(f"Test Loss: {test_loss:.4f}")
     print(f"Test MAE: {test_mae:.4f}")
     
+    today_price = preparedata.prepare_data()
     #ask user if they want to see training data modeled
-    find_answer = FindAnswer(create_model.stock_model, prepare_data.test_data, sequence_length, prepare_data.scaler)
+    find_answer = FindAnswer(create_model.stock_model, prepare_data.test_data, sequence_length, prepare_data.scaler, today_price)
     answer = find_answer.find_latest_sequence()
     answer = find_answer.de_scale()
     print("Answer", answer)
-
+    
+    print(real_world_answer)
 
 
 if __name__ == "__main__":
