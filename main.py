@@ -55,35 +55,39 @@ class FetchStockData:
     def fetch_data(self,stock_client):
         try:
             bars = stock_client.get_stock_bars(self.request_params)
+            today_bars = stock_client.get_stock_bars(self.request_today)
             df = bars.df #dataframe from pandas
-            return df
+            return df, today_bars
             #print(df)
 
         except Exception as e:
             print(f"Error fetching data: {str(e)}")
             
-    def whatIsToday(self):
-        today_bars = self.stock_client.get_stock_bars(self.request_today)
-        return self.stock_client.get.stock_bars(self.request_today)
-
 class PrepareData:
-    def __init__(self, df):
+    def __init__(self, df, today_bars):
         self.df = df
+        self.today_bars = today_bars
         self.scaler = MinMaxScaler()
         self.train_data = None
         self.test_data = None
+        
     def prepare_data(self):
         # utc timestamp | open | high | low | close | vwap
         self.df = self.df.sort_index()
         self.df = self.df.dropna() #gets rid of missing values in df
-        self.unscaled_price_at_market_close = self.test_data.iloc[-1]["close"]
-        return self.unscaled_price_at_market_close
+
 
     def split_data(self):
         #split data into train and test sets
         train_data = self.df.iloc[:int(0.8*len(self.df))] #first 80% of data for training
         test_data = self.df.iloc[int(0.2*len(self.df)):] #last 20% of data for testing (per cross validation info)
+        
+        
         return train_data, test_data
+    
+    def today(self):
+        self.unscaled_price_at_market_close = self.test_data[-1][6]
+        return self.unscaled_price_at_market_close
     
     def scale_data(self): #this method essentially preps this data for the LSTM model
         # transforming reduces noise, endcoding, normalization, handles missing values
@@ -154,6 +158,9 @@ class FindAnswer: #remmeber 6 features # lets do sequences of 10 days to predict
         self.dummy_input = None
         self.today_price = today_price
         
+   
+            
+            
     def find_latest_sequence(self):
         print('latest_window', self.latest_window)
         self.latest_sequence = self.latest_window.reshape(1,self.sequence_length,self.n_features)
@@ -179,23 +186,30 @@ class FindAnswer: #remmeber 6 features # lets do sequences of 10 days to predict
         self.real_world_answer = f"The predicted price is {self.predicted_price_actual}, while the price todayis {self.today_price}. The difference is {self.difference:.2f}, which is {self.difference_percentage:.2f}%"
         return self.real_world_answer
         
-
+def create_sequences(data, sequence_length): #purposefully outside of class ^
+    x, y = [], []
+    for i in range(len(data) - sequence_length):
+        x.append(data[i:i + sequence_length])
+        y.append(data[i + sequence_length][-1])
+    return np.array(x), np.array(y)
         
 def main():
     config = DataConfig()
     fetch_stock_data = FetchStockData(config.symbol, config.startTraining, config.now, config.stock_client)
-    df_time_series = fetch_stock_data.fetch_data(config.stock_client)
-    print("Raw data fetched:\n", df_time_series.head())
+    fetch_today_data = FetchStockData()
+    df, request_today = fetch_stock_data.fetch_data(config.stock_client)
+    print('today', request_today)
 
-    preparedata = PrepareData(df_time_series)
+
+    preparedata = PrepareData(df)
     preparedata.prepare_data()
-    train_data, test_data = prepare_data.split_data()
+    train_data, test_data = preparedata.split_data()
     preparedata.train_data = train_data
     preparedata.test_data = test_data
     preparedata.scale_data()
 
     neuron_num = 32
-    create_model = CreateLSTMModel(prepare_data.train_data, prepare_data.test_data, fetch_stock_data.column_num, neuron_num)
+    create_model = CreateLSTMModel(preparedata.train_data, preparedata.test_data, fetch_stock_data.column_num, neuron_num)
     create_model.create_model(fetch_stock_data.column_num)
     
     # Compile the model
@@ -226,14 +240,14 @@ def main():
     print(f"Test Loss: {test_loss:.4f}")
     print(f"Test MAE: {test_mae:.4f}")
     
-    today_price = preparedata.prepare_data()
+    today_price = fetch_stock_data.fetch_data[1] # to return second value in the tuple
     #ask user if they want to see training data modeled
-    find_answer = FindAnswer(create_model.stock_model, prepare_data.test_data, sequence_length, prepare_data.scaler, today_price)
+    find_answer = FindAnswer(create_model.stock_model, preparedata.test_data, sequence_length, preparedata.scaler, today_price)
     answer = find_answer.find_latest_sequence()
     answer = find_answer.de_scale()
-    print("Answer", answer)
+    print("Answer", answer) #raw number from LSTM model - guessing for tomorrow
     
-    print(real_world_answer)
+    print(find_answer.print_answer()) #sentance written out
 
 
 if __name__ == "__main__":
