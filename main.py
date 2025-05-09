@@ -94,7 +94,7 @@ class PrepareData:
         
         # fitting Avoids data leakage: By fitting only on the training data, you prevent information from the test set leaking into the model,
         # which could artificially inflate performance metrics
-        #Fitting is the step where the transformation “learns” how to process the data;
+        #Fitting is the step where the transformation "learns" how to process the data;
         
         # transforming then applies this learned process to new data
         
@@ -196,12 +196,13 @@ def create_sequences(data, sequence_length): #purposefully outside of class ^
 def main():
     config = DataConfig()
     fetch_stock_data = FetchStockData(config.symbol, config.startTraining, config.now, config.stock_client)
-    fetch_today_data = FetchStockData()
     df, request_today = fetch_stock_data.fetch_data(config.stock_client)
-    print('today', request_today)
-
-
-    preparedata = PrepareData(df)
+    
+    # Convert today's bars to a DataFrame
+    today_df = request_today.df
+    print('Today\'s data:', today_df)
+    
+    preparedata = PrepareData(df, request_today)
     preparedata.prepare_data()
     train_data, test_data = preparedata.split_data()
     preparedata.train_data = train_data
@@ -222,7 +223,7 @@ def main():
     # Train the model
     history = create_model.stock_model.fit(
         create_model.train_data,
-        create_model.train_data[:, -1],  # 
+        create_model.train_data[:, -1],
         epochs=50,
         batch_size=32,
         validation_split=0.2,
@@ -234,21 +235,21 @@ def main():
         create_model.test_data,
         create_model.test_data[:, -1]
     )
-    
-    #find answer
-    sequence_length = 10 #10 days to predict 11th day - FROM the model that was trained in the code above
     print(f"Test Loss: {test_loss:.4f}")
     print(f"Test MAE: {test_mae:.4f}")
     
-    today_price = fetch_stock_data.fetch_data[1] # to return second value in the tuple
-    #ask user if they want to see training data modeled
-    find_answer = FindAnswer(create_model.stock_model, preparedata.test_data, sequence_length, preparedata.scaler, today_price)
-    answer = find_answer.find_latest_sequence()
-    answer = find_answer.de_scale()
-    print("Answer", answer) #raw number from LSTM model - guessing for tomorrow
+    # Get today's price from the DataFrame
+    today_price = today_df['close'].iloc[-1]
+    print('Today\'s closing price:', today_price)
     
-    print(find_answer.print_answer()) #sentance written out
+    # Make prediction
+    sequence_length = 10
+    find_answer = FindAnswer(create_model.stock_model, preparedata.test_data, sequence_length, preparedata.scaler, today_price)
+    prediction = find_answer.find_latest_sequence()
+    predicted_price = find_answer.de_scale()
+    print('Today\'s closing price:', today_price)
+    print("Predicted price for tomorrow:", predicted_price)
+    print(find_answer.print_answer())
 
-
-if __name__ == "__main__":
+if __name__ == "__main__": 
     main()
