@@ -7,4 +7,4 @@ Yesterday = day when main.py is run
 Today = day model predicts
 ***Clarification Yesterday is Today and Date(), tomorrow is the prediction date
 To
-Yesterday Date(),Pre-Day Of Week,Yesterday Price,Predicted,Pre-Predicted Diff,Pre-PD Percent,Pre-Diff Sign(+/-),Test MAE,Test Loss,TodayDate,Post-Day of Week,Today Verify,Post-Predicted Diff,Post-PD Percent,val_mae,val_loss
+Test Date(),Test-Day Of Week,Test Price,Predicted Value,Test Diff,Test Change(%),Test Diff Sign(+/-),Test MAE,Test Loss,Val Date,Val Day of Week,Post-Break?(T/F),Val Price,Val Diff,Val Percent Diff,Val Change(%),Val MAE,Val Loss,Meley-Model Ver, Notes
