@@ -2,6 +2,18 @@ from alpaca.trading.client import TradingClient
 from alpaca.trading.requests import GetCalendarRequest
 class AutoData:
     
+    
+    """[ ////////this is the format of calendar data json frm api we need entire program to run only
+        if open true & close false then it is a weekend break
+        {
+            "date": "string",
+            "open": "string",
+            "close": "string",
+            "settlement_date": "string"
+        }
+        ]
+    """
+    
     def __init__(self, df, request_today):
         self.trading_client = TradingClient(os.environ["APCA-API-KEY-ID"], os.environ["APCA-API-SECRET-KEY"])
         # separating rows into 3 chunks for accessing later 
@@ -38,18 +50,29 @@ class AutoData:
         
     # only runs if val_row[Price] is not None
     def after_a_break(self): #tracking if US stock exchange is open between two adjactent days
-        self.val_date = self.val_row["Val Date (YYYY-MM-DD)"]
-        self.test_date = self.test_row["Test Date (YYYY-MM-DD)"]
+        #self.val_date = self.val_row["Val Date (YYYY-MM-DD)"]
+        #self.test_date = self.test_row["Test Date (YYYY-MM-DD)"]
+        #self.calendar = self.trading_client.get_calendar(GetCalendarRequest(start=self.val_date, end=self.test_date))
         self.calendar = self.trading_client.get_calendar(GetCalendarRequest(start=self.val_date, end=self.test_date))
+
        
         
     def auto_data(self):
-        self.df = self.df.sort_index()
+        pass
         
     
     def updateTD_txt(self):
-        with open('TD.txt', 'w') as file:
-            
+        pass
     def plot_data(self):
-        plt.plot(self.df['close'])
-        plt.show()
+        pass
+
+def main():
+    config = DataConfig()
+    auto_data = AutoData(config.df, config.request_today)
+    
+    
+
+
+
+if __name__ == "__main__":
+    main()  
