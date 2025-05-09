@@ -17,6 +17,7 @@ from tensorflow.keras.layers import LSTM, Dense
 import requests
 import json
 import os
+from data.auto_data import AutoData
 
 # Load environment variables from .env file
 load_dotenv()
@@ -198,7 +199,7 @@ def main():
     fetch_stock_data = FetchStockData(config.symbol, config.startTraining, config.now, config.stock_client)
     df, request_today = fetch_stock_data.fetch_data(config.stock_client)
     
-    # Convert today's bars to a DataFrame
+    # converting today bars to a DataFrame
     today_df = request_today.df
     print('Today\'s data:', today_df)
     
