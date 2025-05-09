@@ -1,7 +1,6 @@
 
 class AutoData:
     
-    
     def __init__(self, df, request_today):
         self.df = df
         self.request_today = request_today

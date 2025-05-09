@@ -1,1 +1,10 @@
 Automated Daily data
+all data below is measured in dollars.
+using alpaca api
+
+
+Yesterday = day when main.py is run 
+Today = day model predicts
+***Clarification Yesterday is Today and Date(), tomorrow is the prediction date
+To
+Yesterday Date(),Pre-Day Of Week,Yesterday Price,Predicted,Pre-Predicted Diff,Pre-PD Percent,Pre-Diff Sign(+/-),Test MAE,Test Loss,TodayDate,Post-Day of Week,Today Verify,Post-Predicted Diff,Post-PD Percent,val_mae,val_loss
