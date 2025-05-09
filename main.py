@@ -192,7 +192,7 @@ def create_sequences(data, sequence_length): #purposefully outside of class ^
         x.append(data[i:i + sequence_length])
         y.append(data[i + sequence_length][-1])
     return np.array(x), np.array(y)
-        
+
 def main():
     config = DataConfig()
     fetch_stock_data = FetchStockData(config.symbol, config.startTraining, config.now, config.stock_client)
@@ -253,3 +253,4 @@ def main():
 
 if __name__ == "__main__": 
     main()
+
