@@ -17,7 +17,7 @@ from tensorflow.keras.layers import LSTM, Dense
 import requests
 import json
 import os
-from data.auto_data import AutoData
+#from data.auto_data import AutoData
 
 # Load environment variables from .env file
 load_dotenv()
@@ -252,6 +252,8 @@ def main():
     print("Predicted price for tomorrow:", predicted_price)
     print(find_answer.print_answer())
 
+    # i want to send "today_price" and "predicted_price" to the auto_data.py file
+    #add variables for marigin of error later
 if __name__ == "__main__": 
     main()
 
