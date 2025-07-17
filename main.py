@@ -249,22 +249,26 @@ def main():
     # Make prediction
     sequence_length = 10
     find_answer = FindAnswer(create_model.stock_model, preparedata.test_data, sequence_length, preparedata.scaler, today_price)
-    pass_to_auto_data = {
-        "today_price": today_price,
-        "predicted_price": find_answer.predicted_price_actual,
-        "find_answer": find_answer.predicted_price_actual,
-        "test_mae": test_mae,
-        "test_loss": test_loss,
-        "difference": print_answer.difference,
-        "difference_percentage": find_answer.difference_percentage,
-        "real_world_answer": find_answer.real_world_answer
-        }
+    
+    # Call methods in the correct order
     prediction = find_answer.find_latest_sequence()
     predicted_price = find_answer.de_scale()
+    answer_result = find_answer.print_answer()
+    
+    pass_to_auto_data = {
+        "today_price": today_price,
+        "predicted_price": predicted_price,
+        "test_mae": test_mae,
+        "test_loss": test_loss,
+        "difference": find_answer.difference,
+        "difference_percentage": find_answer.difference_percentage,
+        "real_world_answer": answer_result
+        }
+    
     print(pass_to_auto_data)
     print('Today\'s closing price:', today_price)
     print("Predicted price for tomorrow:", predicted_price)
-    print(find_answer.print_answer())
+    print(answer_result)
 
     # i want to send "today_price" and "predicted_price" to the auto_data.py file
     #add variables for marigin of error later
