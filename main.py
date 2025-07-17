@@ -17,6 +17,9 @@ from tensorflow.keras.layers import LSTM, Dense
 import requests
 import json
 import os
+import logging
+
+logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 #from data.auto_data import AutoData
 
 # Load environment variables from .env file
@@ -246,8 +249,19 @@ def main():
     # Make prediction
     sequence_length = 10
     find_answer = FindAnswer(create_model.stock_model, preparedata.test_data, sequence_length, preparedata.scaler, today_price)
+    pass_to_auto_data = {
+        "today_price": today_price,
+        "predicted_price": find_answer.predicted_price_actual,
+        "find_answer": find_answer.predicted_price_actual,
+        "test_mae": test_mae,
+        "test_loss": test_loss,
+        "difference": print_answer.difference,
+        "difference_percentage": find_answer.difference_percentage,
+        "real_world_answer": find_answer.real_world_answer
+        }
     prediction = find_answer.find_latest_sequence()
     predicted_price = find_answer.de_scale()
+    print(pass_to_auto_data)
     print('Today\'s closing price:', today_price)
     print("Predicted price for tomorrow:", predicted_price)
     print(find_answer.print_answer())

@@ -8,6 +8,11 @@ import subprocess
 import os
 from dotenv import load_dotenv
 import sys
+import logging
+import unittest
+
+logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
+
 
 # Add the parent directory to the Python path
 current_dir = os.path.dirname(os.path.abspath(__file__))  # Get current directory
@@ -19,7 +24,7 @@ from main import DataConfig
 
 load_dotenv()
 
-class AutoData:
+class AutoData(unittest.TestCase):
     
     
     """[ ////////this is the format of calendar data json frm api we need entire program to run only
@@ -68,13 +73,14 @@ class AutoData:
         self.test_date = None
         self.calendar = None
 
-    def after_a_break(self):
-        if self.val_date and self.test_date:
-            self.calendar = self.trading_client.get_calendar(
-                GetCalendarRequest(start=self.val_date, end=self.test_date)
-            )
-            return self.calendar
-        return None
+        #might not be nessesary
+        """ def after_a_break(self):
+            if self.val_date and self.test_date:
+                self.calendar = self.trading_client.get_calendar(
+                    GetCalendarRequest(start=self.val_date, end=self.test_date)
+                )
+                return self.calendar
+            return None """
 
     def auto_data(self):
         #this is where we will add the code to automate
@@ -94,10 +100,31 @@ class AutoData:
         #formatting on how user recieves data
         pass
     
-
+    def trigger_run(self): #used for testing. trigger code to run on command 
+        pass
     def plot_data(self):
         #not worried about this for now
         pass
+    
+    def logging(self):
+        logging.info("Running scheduled task...")
+        logging.info("Running scheduled task...")
+        logging.info("Running scheduled task...")
+        logging.info("Running scheduled task...")
+        
+    def test_logging(self):
+        self.logging()
+        
+    def test_does_main_run(self):
+        self.main()
+        subprocess.run(["python", "main.py"])
+        
+        
+# Check every minute
+        
+    def test_auto_data(self):
+        self.auto_data()
+
 
 def main():
     config = DataConfig()

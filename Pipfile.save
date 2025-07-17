@@ -1,4 +1,4 @@
-[[source]]
+[C[[source]]
 url = "https://pypi.org/simple"
 verify_ssl = true
 name = "pypi"
@@ -13,7 +13,7 @@ schedule = "*"
 alpaca-py = "*"
 tensorflow = "*"
 requests = "*"
-scipy = ">=1.6.0"
+scipy >= 1.6.0
 
 [dev-packages]
 
