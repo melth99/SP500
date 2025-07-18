@@ -16,7 +16,7 @@ import unittest
 with smtplib.SMTP("domain.org") as smtp:
     smtp.noop() #this is just to smtp statement quits
     
-who_wants_this = ['meleyth@gmail.com']
+who_wants_this = []
     
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 
@@ -30,6 +30,9 @@ from main import pass_to_auto_data
 
 load_dotenv()
 host_name = 'stonks'
+email_address = os.getenv('EMAIL-SENDER')
+email_pw = os.getenv('EMAIL-SENDER-PW')
+
 
 
 
@@ -110,24 +113,7 @@ class AutoData(unittest.TestCase, smtp, host_name):
         
         
     
-    def delivery(self):
-        #formatting on how user recieves data
 
-        smtp.ehlo(host_name)
-        smtp.extn(host_name) # returns true if smtp server recieves request with host name :)
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        stmp.quit()
-        
-    
     def trigger_run(self): #used for testing. trigger code to run on command 
         pass
     def plot_data(self):
@@ -154,6 +140,22 @@ class AutoData(unittest.TestCase, smtp, host_name):
         self.assertTrue(pass_to_auto_data)
         print(pass_to_auto_data)
 
+class Emails(email_address, email_pw, smtp):
+    def __init__(self, email_address, email_pw):
+        self.email_address = email_address
+        self.email_pw = email_pw
+        self.smtp = smtp
+
+        
+        def delivery(self):
+            #formatting on how user recieves data
+            smtp.ehlo(host_name)
+            smtp.extn(host_name) # returns true if smtp server recieves request with host name :)
+            
+            
+            stmp.quit()
+            
+    
 
 def main():
     config = DataConfig()
