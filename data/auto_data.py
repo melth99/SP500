@@ -9,7 +9,15 @@ import os
 from dotenv import load_dotenv
 import sys
 import logging
+import smtplib
+import unittest
 
+
+with smtplib.SMTP("domain.org") as smtp:
+    smtp.noop() #this is just to smtp statement quits
+    
+who_wants_this = ['meleyth@gmail.com']
+    
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 
 # Add the parent directory to the Python path
@@ -18,10 +26,14 @@ parent_dir = os.path.dirname(current_dir)  # Get parent directory
 sys.path.append(parent_dir)  # Add parent directory to Python path
 
 from main import DataConfig
+from main import pass_to_auto_data
 
 load_dotenv()
+host_name = 'stonks'
 
-class AutoData:
+
+
+class AutoData(unittest.TestCase, smtp, host_name):
     
     
     """[ ////////this is the format of calendar data json frm api we need entire program to run only
@@ -81,21 +93,40 @@ class AutoData:
 
     def auto_data(self):
         #this is where we will add the code to automate
-        print("Running scheduled task...")
-            
-        subprocess.run(["python", "main.py"])
-        
-        while True:
-            schedule.run_pending()
-            time.sleep(60)  # Check every minute
+        try:
+            print("Running scheduled task...")
+            result = subprocess.run(["python", "main.py"], capture_output=True, text=True)
+            if result.returncode != 0:
+                logging.error(f"Error running main.py: {result.stderr}")
+                return False
+            return True
+        except Exception as e:
+            logging.error(f"Exception in auto_data: {e}")
+            return False
 
     def format_data(self):
         #formatting on how user recieves data
-        pass
+        delivery_message = 'Hi there \n The price of the S&P 500 is $' + str(pass_to_auto_data['today_price']) + ' \n The predicted price for tomorrow is $' + str(pass_to_auto_data['predicted_price']) + ' \n The difference is $' + str(pass_to_auto_data['difference']) + ' \n The difference percentage is ' + str(pass_to_auto_data['difference_percentage']) + '%'
+        
+        
     
     def delivery(self):
         #formatting on how user recieves data
-        pass
+
+        smtp.ehlo(host_name)
+        smtp.extn(host_name) # returns true if smtp server recieves request with host name :)
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        stmp.quit()
+        
     
     def trigger_run(self): #used for testing. trigger code to run on command 
         pass
@@ -117,9 +148,11 @@ class AutoData:
         # Test method - to be implemented
         pass
         
-    def test_auto_data(self):
+    def test_auto_data(self, unittest.TestCase):
         # Test method - to be implemented  
-        pass
+        self.auto_data()
+        self.assertTrue(pass_to_auto_data)
+        print(pass_to_auto_data)
 
 
 def main():
