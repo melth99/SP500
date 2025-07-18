@@ -11,13 +11,20 @@ import sys
 import logging
 import smtplib
 import unittest
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import ssl
 
 
 with smtplib.SMTP("domain.org") as smtp:
     smtp.noop() #this is just to smtp statement quits
     
 who_wants_this = []
+message = ''
     
+#%(asctime)s - Adds a timestamp showing when the log message was created
+#%(message)s - The actual log message you write in your code """
+
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 
 # Add the parent directory to the Python path
@@ -120,11 +127,7 @@ class AutoData(unittest.TestCase, smtp, host_name):
         #not worried about this for now
         pass
     
-    def logging(self):
-        logging.info("Running scheduled task...")
-        logging.info("Running scheduled task...")
-        logging.info("Running scheduled task...")
-        logging.info("Running scheduled task...")
+
         
     def test_logging(self):
         # Test method - to be implemented
@@ -140,10 +143,11 @@ class AutoData(unittest.TestCase, smtp, host_name):
         self.assertTrue(pass_to_auto_data)
         print(pass_to_auto_data)
 
-class Emails(email_address, email_pw, smtp):
+class Emails(email_address, email_pw, smtp, host_name):
     def __init__(self, email_address, email_pw):
         self.email_address = email_address
         self.email_pw = email_pw
+        self.host_name = host_name
         self.smtp = smtp
 
         
@@ -153,8 +157,15 @@ class Emails(email_address, email_pw, smtp):
             smtp.extn(host_name) # returns true if smtp server recieves request with host name :)
             
             
-            stmp.quit()
             
+            smtp.quit()
+            
+        def logging(self):
+            logging.info("Running scheduled task...")
+            logging.info("Running scheduled task...")
+            logging.info("Running scheduled task...")
+            logging.info("Running scheduled task...")
+                    
     
 
 def main():
